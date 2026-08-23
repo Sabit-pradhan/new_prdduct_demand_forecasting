@@ -1,8 +1,0 @@
-from pyspark.sql import Window,functions as F
-from feature_engineering.schemas import PRODUCT_ARRAY
-from feature_engineering.common import normalize_text,category_expr,unix_or_timestamp
-from feature_engineering.observability import traced
-@traced()
-def order_lines_from_sales_order(spark,cfg):
- r=spark.table(cfg.sales_order_fqn).withColumn("order_ts",unix_or_timestamp(F.col("order_datetime"))).withColumn("rn",F.row_number().over(Window.partitionBy("order_number").orderBy(F.col("order_ts").desc_nulls_last(),F.col("number_of_line_items").desc()))).filter("rn=1").withColumn("p",F.explode(F.from_json(F.col("ordered_products").cast("string"),PRODUCT_ARRAY)))
- return r.select(F.col("order_number").cast("string").alias("order_id"),F.col("customer_id").cast("string").alias("customer_id"),"order_ts",F.to_date("order_ts").alias("order_date"),F.col("p.id").alias("product_id"),normalize_text(F.col("p.name")).alias("product_name"),F.element_at(F.split(normalize_text(F.col("p.name"))," "),1).alias("brand"),category_expr(F.col("p.name")).alias("functional_category"),F.col("p.price").cast("double").alias("unit_price"),F.col("p.qty").cast("double").alias("quantity"),F.col("p.curr").alias("currency"),F.col("p.unit").alias("unit"),F.when(F.col("p.promotion_info").isNotNull(),1).otherwise(0).alias("promotion_flag"),F.lit(0.0).alias("promotion_discount"),F.lit("sales_order").alias("source")).filter("product_id is not null and quantity>0").dropDuplicates(["order_id","product_id","unit_price","quantity"])
