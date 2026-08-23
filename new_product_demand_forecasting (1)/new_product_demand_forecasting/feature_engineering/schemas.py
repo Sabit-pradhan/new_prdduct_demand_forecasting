@@ -1,0 +1,3 @@
+from pyspark.sql import types as T
+PRODUCT_STRUCT=T.StructType([T.StructField("curr",T.StringType()),T.StructField("id",T.StringType()),T.StructField("name",T.StringType()),T.StructField("price",T.StringType()),T.StructField("qty",T.StringType()),T.StructField("unit",T.StringType()),T.StructField("promotion_info",T.MapType(T.StringType(),T.StringType()))]); PRODUCT_ARRAY=T.ArrayType(PRODUCT_STRUCT)
+NEW_PRODUCT_SCHEMA=T.StructType([T.StructField("product_id",T.StringType(),False),T.StructField("product_name",T.StringType(),False),T.StructField("brand",T.StringType(),True),T.StructField("launch_price",T.DoubleType(),False),T.StructField("launch_date",T.DateType(),False)])
