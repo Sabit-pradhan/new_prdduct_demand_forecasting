@@ -1,0 +1,6 @@
+mlflow-skinny[databricks]
+sentence-transformers
+torch
+pandas
+numpy
+databricks-sdk
