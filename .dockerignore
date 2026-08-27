@@ -1,0 +1,13 @@
+data/
+*.csv
+venv/
+env/
+__pycache__/
+*.pyc
+.env
+.git/
+.gitignore
+*.log
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
