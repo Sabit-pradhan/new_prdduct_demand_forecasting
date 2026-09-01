@@ -1,0 +1,51 @@
+# k8s/deployment.yml
+# Kubernetes Deployment + Service for Fraud Detection App
+# This file tells EKS:
+#   - Run 2 copies of the fraud-detection container
+#   - Pull image from Amazon ECR
+#   - Open port 8501 (Streamlit)
+#   - Create a public Load Balancer URL
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-detection
+  labels:
+    app: fraud-detection
+spec:
+  replicas: 2                         # run 2 pods always
+  selector:
+    matchLabels:
+      app: fraud-detection
+  template:
+    metadata:
+      labels:
+        app: fraud-detection
+    spec:
+      containers:
+      - name: fraud-app
+        image: 347179352242.dkr.ecr.ap-south-1.amazonaws.com/fraud-detection:latest
+        # ↑ Replace 347179352242 with your AWS account ID
+        ports:
+        - containerPort: 8501
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-detection-service
+spec:
+  selector:
+    app: fraud-detection              # routes to pods with this label
+  ports:
+  - protocol: TCP
+    port: 8501
+    targetPort: 8501
+  type: LoadBalancer                  # creates public URL automatically
